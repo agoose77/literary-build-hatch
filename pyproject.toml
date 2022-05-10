@@ -1,7 +1,7 @@
 [project]
 name = "literary-build-hatch"
 version = "0.1.0"
-description = ""
+description = "Hatchling build plugin for Literary"
 authors = [
     {name = "Angus Hollands", email = "goosey15@gmail.com"},
 ]
@@ -10,12 +10,38 @@ dependencies = [
     "literary>=3.0.2",
     "traitlets>=5"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.7"
 readme = "README.md"
 license = {text = "MIT"}
+keywords = [
+    "hatch",
+    "build",
+    "literary"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Build Tools",
+]
 
 [project.entry-points.hatch]
 literary = "literary_build_hatch.hooks"
+
+[tool.black]
+include = '\.pyi?$'
+line-length = 88
+skip-string-normalization = true
+target-version = ["py37"]
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["hatchling"]
