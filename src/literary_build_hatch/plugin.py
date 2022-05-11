@@ -14,11 +14,26 @@ def mangle_attribute(cls, name):
     return f"_{cls.__name__}__{name}"
 
 
+def patch_jupyter_path(self):
+    # The PEP517 isolated builder partially emulates a virtualenv
+    # Jupyter gets confused about this
+    jupyter_prefix = os.path.dirname(os.path.dirname(shutil.which("jupyter")))
+    paths = [
+        os.path.join(jupyter_prefix, "share", "jupyter"),
+        *os.environ.get('JUPYTER_PATH', '').split(os.path.pathsep),
+    ]
+    os.environ['JUPYTER_PATH'] = os.path.pathsep.join([p for p in paths if p])
+
+
 class LiteraryBuildHook(BuildHookInterface):
     PLUGIN_NAME = 'literary'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Fix PEP517 support
+        patch_jupyter_path()
+
         # Find literary config file
         root_path = pathlib.Path(self.root)
         config_path = find_literary_config(root_path)
@@ -39,16 +54,6 @@ class LiteraryBuildHook(BuildHookInterface):
             self, mangle_attribute(BuildHookInterface, "build_config")
         )
         self._metadata_constructor = self._build_config.core_metadata_constructor
-
-    def _patch_jupyter_path(self):
-        # The PEP517 isolated builder partially emulates a virtualenv
-        # Jupyter gets confused about this
-        jupyter_prefix = os.path.dirname(os.path.dirname(shutil.which("jupyter")))
-        paths = [
-            os.path.join(jupyter_prefix, "share", "jupyter"),
-            *os.environ.get('JUPYTER_PATH', '').split(os.path.pathsep),
-        ]
-        os.environ['JUPYTER_PATH'] = os.path.pathsep.join([p for p in paths if p])
 
     def _require_packages(self, packages):
         # Patch metadata constructor
