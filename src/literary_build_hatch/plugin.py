@@ -25,8 +25,10 @@ class LiteraryBuildHook(BuildHookInterface):
         if config_path.parent != root_path:
             raise RuntimeError("missing literary config")
 
-        # Build Python files
-        self._builder = LiteraryBuildApp(config_file=config_path)
+        # Configure builder
+        self._builder = LiteraryBuildApp.instance(config_file=config_path)
+        # Load configuration from file
+        self._builder.load_app_config_file()
 
         # Ensure that we own build directory
         if self._builder.generated_path == root_path:
