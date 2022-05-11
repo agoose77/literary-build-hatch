@@ -100,7 +100,7 @@ class LiteraryBuildHook(BuildHookInterface):
 
             # We only want to generate files for standard wheels
             elif version == "standard":
-                self._builder.build()
+                self._builder.start()
 
     def finalize(self, version, build_data, artifact):
         # We can inject our editable support to wheels
