@@ -1,4 +1,8 @@
 # literary-build-hatch
+[![pypi-badge][]][pypi]
+
+[pypi-badge]: https://img.shields.io/pypi/v/literary-build-hatch
+[pypi]: https://pypi.org/project/literary-build-hatch
 
 A hatch plugin to build wheels from Literary projects.
 
