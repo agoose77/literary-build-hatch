@@ -14,7 +14,7 @@ def mangle_attribute(cls, name):
     return f"_{cls.__name__}__{name}"
 
 
-def patch_jupyter_path(self):
+def patch_jupyter_path():
     # The PEP517 isolated builder partially emulates a virtualenv
     # Jupyter gets confused about this
     jupyter_prefix = os.path.dirname(os.path.dirname(shutil.which("jupyter")))
