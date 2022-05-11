@@ -38,6 +38,16 @@ class LiteraryBuildHook(BuildHookInterface):
         )
         self._metadata_constructor = self._build_config.core_metadata_constructor
 
+    def _patch_jupyter_path(self):
+        # The PEP517 isolated builder partially emulates a virtualenv
+        # Jupyter gets confused about this
+        jupyter_prefix = os.path.dirname(os.path.dirname(shutil.which("jupyter")))
+        paths = [
+            os.path.join(jupyter_prefix, "share", "jupyter"),
+            *os.environ.get('JUPYTER_PATH', '').split(os.path.pathsep),
+        ]
+        os.environ['JUPYTER_PATH'] = os.path.pathsep.join([p for p in paths if p])
+
     def _require_packages(self, packages):
         # Patch metadata constructor
         def core_metadata_constructor(metadata, extra_dependencies=()):
