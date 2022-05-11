@@ -99,12 +99,11 @@ class LiteraryBuildHook(BuildHookInterface):
         shutil.move(dst_path, artifact)
 
     def initialize(self, version, build_data):
-        print("INI", self.target_name, version)
         if self.target_name == "wheel":
             # For editable wheels, we don't want to build anything for Literary
             # Instead, we just want to patch the final wheel to support the import hook
             if version == "editable":
-                self._require_packages(("literary>=3.0.2",))
+                self._require_packages(("literary>=4.0.0a0",))
 
             # We only want to generate files for standard wheels
             elif version == "standard":
