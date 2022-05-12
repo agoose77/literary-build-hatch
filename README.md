@@ -13,13 +13,17 @@ Example `pyproject.toml`:
 [tool.hatch.build.targets.wheel.force-include]
 "lib" = "/"
 
-# Alternatively pick up lib if it's not excluded by VCS
+# Exclude lib if it isn't ignored by VCS
 [tool.hatch.build]
-sources = ["lib"]
+exclude = ["lib"]
+
+# Ensure src is available to editable installs
+[tool.hatch.build.targets.wheel]
+dev-mode-dirs = ["src"]
 
 # Use Literary build hook
 [tool.hatch.build.targets.wheel.hooks.literary]
-dependencies = ["literary-build-hatch>=0.2.0a0"]
+dependencies = ["literary-build-hatch>=0.2.0"]
 
 # Specify Hatch build-system
 [build-system]
