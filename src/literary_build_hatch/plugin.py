@@ -1,9 +1,6 @@
-import fnmatch
 import os
 import pathlib
 import shutil
-import tempfile
-import zipfile
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from literary.commands.build import LiteraryBuildApp
