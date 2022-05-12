@@ -7,7 +7,7 @@ authors = [
 ]
 dependencies = [
     "hatchling>=0.24.0",
-    "literary>=4.0.0a1",
+    "literary>=4.0.0",
     "traitlets>=5"
 ]
 requires-python = ">=3.7"

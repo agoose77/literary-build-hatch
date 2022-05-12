@@ -75,7 +75,7 @@ class LiteraryBuildHook(BuildHookInterface):
                         "Cannot build an editable wheel for literary (this breaks bootstrapping)"
                     )
 
-                self._require_packages(("literary>=4.0.0a0",))
+                self._require_packages(("literary>=4.0.0",))
 
             # We only want to generate files for standard wheels
             elif version == "standard":
