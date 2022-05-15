@@ -6,7 +6,7 @@ authors = [
     {name = "Angus Hollands", email = "goosey15@gmail.com"},
 ]
 dependencies = [
-    "hatchling>=0.24.0",
+    "hatchling>0.24.0",
     "literary>=4.0.0",
     "traitlets>=5"
 ]
