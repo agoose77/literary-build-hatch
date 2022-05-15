@@ -7,10 +7,6 @@ from literary.commands.build import LiteraryBuildApp
 from literary.config import find_literary_config, load_literary_config
 
 
-def mangle_attribute(cls, name):
-    return f"_{cls.__name__}__{name}"
-
-
 def patch_jupyter_path():
     # The PEP517 isolated builder partially emulates a virtualenv
     # Jupyter gets confused about this
@@ -46,25 +42,6 @@ class LiteraryBuildHook(BuildHookInterface):
         if self._builder.generated_path == root_path:
             raise RuntimeError("cannot generate inside root")
 
-        # Store original wheel metadata constructor
-        self._build_config = getattr(
-            self, mangle_attribute(BuildHookInterface, "build_config")
-        )
-        self._metadata_constructor = self._build_config.core_metadata_constructor
-
-    def _require_packages(self, packages):
-        # Patch metadata constructor
-        def core_metadata_constructor(metadata, extra_dependencies=()):
-            return self._metadata_constructor(
-                metadata, tuple(extra_dependencies) + tuple(packages)
-            )
-
-        setattr(
-            self._build_config,
-            mangle_attribute(type(self._build_config), "core_metadata_constructor"),
-            core_metadata_constructor,
-        )
-
     def initialize(self, version, build_data):
         if self.target_name == "wheel":
             # For editable wheels, we don't want to build anything for Literary
@@ -75,7 +52,8 @@ class LiteraryBuildHook(BuildHookInterface):
                         "Cannot build an editable wheel for literary (this breaks bootstrapping)"
                     )
 
-                self._require_packages(("literary>=4.0.0",))
+                # We need liteary to be able to import this package
+                build_data['dependencies'].append("literary>=4.0.0")
 
             # We only want to generate files for standard wheels
             elif version == "standard":
