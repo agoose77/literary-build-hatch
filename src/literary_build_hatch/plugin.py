@@ -31,7 +31,11 @@ class LiteraryBuildHook(BuildHookInterface):
         root_path = pathlib.Path(self.root)
         config_path = find_literary_config(root_path)
         if config_path.parent != root_path:
-            raise RuntimeError("missing literary config")
+            raise RuntimeError(
+                f"Could not find a Literary config file between {root_path.root} and {root_path}. "
+                f"This file is required to instruct Literary on how to build this package. "
+                f"See https://github.com/agoose77/literary/wiki/Configuration for more information."
+            )
 
         # Configure builder
         self._builder = LiteraryBuildApp.instance(config_file=config_path)
@@ -40,7 +44,13 @@ class LiteraryBuildHook(BuildHookInterface):
 
         # Ensure that we own build directory
         if self._builder.generated_path == root_path:
-            raise RuntimeError("cannot generate inside root")
+            raise RuntimeError(
+                f"Literary is strongly opinionated about building into its own directory e.g. lib/. "
+                f"This makes it easier to reason about cleaning up files. You are trying to build "
+                f"directly into the root path {root_path} of this package, which is not allowed. "
+                f"See https://github.com/agoose77/literary/wiki/Configuration for the destination "
+                f"directory option."
+            )
 
     def initialize(self, version, build_data):
         if self.target_name == "wheel":
@@ -49,7 +59,9 @@ class LiteraryBuildHook(BuildHookInterface):
             if version == "editable":
                 if self.metadata.core.name == "literary":
                     raise RuntimeError(
-                        "Cannot build an editable wheel for literary (this breaks bootstrapping)"
+                        "Cannot build an editable wheel for literary (this breaks bootstrapping). "
+                        "If you are seeing this and don't know what it means, are you trying to "
+                        "build a package called 'literary'? If so, that package name is reserved. "
                     )
 
                 # We need liteary to be able to import this package
