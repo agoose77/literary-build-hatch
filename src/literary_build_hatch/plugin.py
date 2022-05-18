@@ -6,6 +6,8 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from literary.commands.build import LiteraryBuildApp
 from literary.config import find_literary_config, load_literary_config
 
+OLDEST_LITERARY_VERSION = "literary>=4.0"
+
 
 def patch_jupyter_path():
     # The PEP517 isolated builder partially emulates a virtualenv
@@ -64,8 +66,10 @@ class LiteraryBuildHook(BuildHookInterface):
                         "build a package called 'literary'? If so, that package name is reserved. "
                     )
 
-                # We need liteary to be able to import this package
-                build_data['dependencies'].append("literary>=4.0.0")
+                # We need Literary to be able to import this package, and there may be several
+                # editable packages in the current environment. This version needs to be
+                # permissive as possible, so a lower bound can be manually tweaked
+                build_data['dependencies'].append(OLDEST_LITERARY_VERSION)
 
             # We only want to generate files for standard wheels
             elif version == "standard":
