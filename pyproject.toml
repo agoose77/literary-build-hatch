@@ -1,12 +1,12 @@
 [project]
 name = "literary-build-hatch"
-version = "0.2.0"
+version = "0.3.0"
 description = "Hatchling build plugin for Literary"
 authors = [
     {name = "Angus Hollands", email = "goosey15@gmail.com"},
 ]
 dependencies = [
-    "hatchling>0.24.0",
+    "hatchling>=1.0.0",
     "literary>=4.0.0",
     "traitlets>=5"
 ]
