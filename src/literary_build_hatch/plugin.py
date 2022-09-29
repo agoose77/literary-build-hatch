@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+import tempfile
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from literary.commands.build import LiteraryBuildApp
@@ -55,25 +56,41 @@ class LiteraryBuildHook(BuildHookInterface):
             )
 
     def initialize(self, version, build_data):
-        if self.target_name == "wheel":
-            # For editable wheels, we don't want to build anything for Literary
-            # Instead, we just want to patch the final wheel to support the import hook
-            if version == "editable":
-                if self.metadata.core.name == "literary":
-                    raise RuntimeError(
-                        "Cannot build an editable wheel for literary (this breaks bootstrapping). "
-                        "If you are seeing this and don't know what it means, are you trying to "
-                        "build a package called 'literary'? If so, that package name is reserved. "
-                    )
+        if self.target_name != "wheel":
+            return
 
-                # We need Literary to be able to import this package, and there may be several
-                # editable packages in the current environment. This version needs to be
-                # permissive as possible, so a lower bound can be manually tweaked
-                build_data['dependencies'].append(OLDEST_LITERARY_VERSION)
+        # For editable wheels, we don't want to build anything for Literary
+        # Instead, we just want to patch the final wheel to support the import hook
+        if version == "editable":
+            if self.metadata.core.name == "literary":
+                raise RuntimeError(
+                    "Cannot build an editable wheel for literary (this breaks bootstrapping). "
+                    "If you are seeing this and don't know what it means, are you trying to "
+                    "build a package called 'literary'? If so, that package name is reserved. "
+                )
 
-            # We only want to generate files for standard wheels
-            elif version == "standard":
-                self._builder.start()
+            # We need Literary to be able to import this package, and there may be several
+            # editable packages in the current environment. This version needs to be
+            # permissive as possible, so a lower bound can be manually tweaked
+            build_data['dependencies'].append(OLDEST_LITERARY_VERSION)
+
+            # Automatically add .pth file. The builder may do this too if the user specifies a directory
+            # but the site module will deduplicate it
+            editable_pth_name = (
+                f"{self.metadata.core.name.replace('-', '_')}-literary.pth"
+            )
+            fd, path = tempfile.mkstemp(text=True)
+            with os.fdopen(fd, 'w') as f:
+                f.write(str(self._builder.packages_path))
+            build_data['force_include_editable'][path] = editable_pth_name
+
+        # We only want to generate files for standard wheels
+        elif version == "standard":
+            self._builder.start()
+
+            # Include generated artifacts. N.B. This can also be done with `artifacts` and `sources`
+            # But this option let's us do this on the builder side
+            build_data["force_include"] = {self._builder.generated_path: "/"}
 
     def clean(self, versions):
         if hasattr(self._builder, "clean"):
